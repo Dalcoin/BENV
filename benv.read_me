@@ -43,7 +43,7 @@ The details on the input of each of these files is below:                       
                                                                                                                        |
 "par.don" : contains the controls for which nuclear density function to use and the formatting of the nuclear EOS      |
                                                                                                                        |
-"serv_par.don" : contains the controls for looping over the program so as to calculate many different nuclii           |
+"serv_par.don" : contains the controls for looping over the program so as to calculate many different nuclei           |
                  calculations in the same run.                                                                         |
                                                                                                                        |
 "values.in2016" : contains the atomic number and atomic mass of the nuclei whose atomic values are to be calculated    |
