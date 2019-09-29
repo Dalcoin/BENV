@@ -1,10 +1,5 @@
 # BENV
-
-##
-
 ## Binding Energy and Nucleon Values
-
-##
 
 *Properties of isospin asymmetric matter derived from chiral effective field theory*
 
