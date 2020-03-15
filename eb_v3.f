@@ -53,7 +53,7 @@ c       n=11
           nxnm = n_1
        end if
 
-       if((n_read .eq. 0) .or. (n_read .eq. 3) .or. (n_read .eq. 5)) then
+       if((n_read .eq. 0).or.(n_read .eq. 3).or.(n_read .eq. 5)) then
           open(unit=14,file='ex_nxlo.don')
        else if((n_read .eq. 1) .or. (n_read .eq. 2)) then
           open(unit=14, file='e0_nxlo.don') 
@@ -103,7 +103,7 @@ c       n=11
 
 
 c       set up interpolation
-       if(n_read .ne. 4 and n_read .ne. 5) then
+       if(n_read .ne. 4 .and. n_read .ne. 5) then
           call dcsakm(n,xdata,zdata,breakz,cscoefz)
           call dcsakm(n,xdata,ydata,breaky,cscoefy)
        else if(n_read .eq. 4) then
@@ -385,6 +385,7 @@ c
 
           if(n_read .eq. 5) then 
               goto 4295
+          end if
                    
 c         phenom_eos_section
            
@@ -425,6 +426,7 @@ c     Calculating the Energy per Particle due to Nuclear Forces
 4295      if(n_read .eq. 5) then 
               e0 = dcsval(datapt,nintv,breaky,cscoefy) 
               pt = e0     
+          end if
 
 c          write(000,*) datapt, e0
                        

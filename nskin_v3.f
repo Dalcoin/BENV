@@ -73,7 +73,7 @@ c     this is where we setup the input
        call init(n1, n2, n3, x1, x2, ta,tz)
        en = energy(rp, cp, wp, rn, cn, wn)
 
-       if(n_read .ne. 4 and n_read .ne. 5) then
+       if(n_read .ne. 4 .and. n_read .ne. 5) then
           do i=1,m 
              den(i)=xdata(i)
              e0(i)=ydata(i)
@@ -89,9 +89,10 @@ c     this is where we setup the input
              e1(i)=zdata(i)
           end do
        else if(n_read .eq. 5) then 
-          do i,m 
-             den(i) = xdata 
+          do i=1,m 
+             den(i) = xdata(i) 
              e0(i) = ydata(i)
+          end do
        end if
 
 c     normalize the proton function
@@ -121,7 +122,7 @@ c       write(000,*) an, ap
        call lgauss(nrep)
        call papoi(down_lim,upper_lim,1,nrep,1.d0,1)
 
-       if(n_read .ne. 4 and n_read .ne. 5) then
+       if(n_read .ne. 4 .and. n_read .ne. 5) then
           call dcsakm(m,den,e0,caser0,coef0)
           call dcsakm(m,den,e1,caser1,coef1)
        else if(n_read .eq. 4) then
@@ -147,7 +148,7 @@ c       write(000,*) an, ap
      1               rho_fy(dr,ap,rp,cp,tz))/rho_t
           end if
 
-          if(n_read .ne. 4 and n_read .ne. 5) then
+          if(n_read .ne. 4 .and. n_read .ne. 5) then
              e0_eval = dcsval(rho_t,m2,caser0,coef0)
              e1_eval = dcsval(rho_t,m2,caser1,coef1)
           else if(n_read .eq. 4) then
@@ -161,6 +162,7 @@ c         phenom_eos_section
           if(n_read .eq. 5) then 
               pt = e0_eval
               goto 4295
+          end if
 
           rat=rho_t/rho0
           ee(i)=ff1*(rho_t)**(2.d0/3.d0) + b1*rho_t +
