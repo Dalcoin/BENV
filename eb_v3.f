@@ -21,6 +21,7 @@ c-------------------------------------------------------------------------------
        common/setup/n1, n2, n3, x1, x2
        common/factor/pi,pi2
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/readpar/n_read 
  
        pi=3.141592654d0 
        pi2=pi**2
@@ -52,7 +53,7 @@ c       n=11
           nxnm = n_1
        end if
 
-       if((n_read .eq. 0) .or. (n_read .eq. 3)) then
+       if((n_read .eq. 0) .or. (n_read .eq. 3) .or. (n_read .eq. 5)) then
           open(unit=14,file='ex_nxlo.don')
        else if((n_read .eq. 1) .or. (n_read .eq. 2)) then
           open(unit=14, file='e0_nxlo.don') 
@@ -93,16 +94,23 @@ c       n=11
              read(15,*) xkfn, zdata(i)
              xdatan(i) = xkfn
           end do
+        else if(n_read .eq. 5) then 
+          do i=1,n
+             read(14,*) den, ydata(i)
+             xdata(i)= den
+          end do 
        end if
 
 
 c       set up interpolation
-       if(n_read .ne. 4) then
+       if(n_read .ne. 4 and n_read .ne. 5) then
           call dcsakm(n,xdata,zdata,breakz,cscoefz)
           call dcsakm(n,xdata,ydata,breaky,cscoefy)
        else if(n_read .eq. 4) then
           call dcsakm(n_1,xdataz,zdata,breakz,cscoefz)
           call dcsakm(n_0,xdatas,ydata,breaky,cscoefy)
+       else if(n_read .eq. 5) then 
+          call dcsakm(n, xdata, ydata, breaky, cscoefy)
        end if
 
        return
@@ -274,6 +282,53 @@ c-------------------------------------------------------------------------------
 c                                        SEMF Components                                           |
 c---------------------------------------------------------------------------------------------------
 
+       function eafff(rho)
+       implicit real*8(a-h,o-z)
+       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+
+        
+       a1=119.14d0
+       b1=-816.95d0
+       c1=724.51d0
+       d1=-32.99d0
+       d2=891.15d0
+       ff1=a1*2.d0*(0.5d0)**(5.d0/3.d0)
+       ff2=d1*2.d0*(0.5d0)**(5.d0/3.d0) + 
+     1     d2*2.d0*(0.5d0)**(8.d0/3.d0) 
+         
+       alph=0.2d0 
+        
+       ee=ff1*(rho)**(2.d0/3.d0) + b1*rho +
+     1 c1*(rho)**(alph+1.d0) + ff2*(rho)**(5.d0/3.d0) 
+
+       eafff = ee
+       end   
+
+
+       function earat(rho)
+       implicit real*8(a-h,o-z)
+       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       
+       rat=rho/rho0
+
+       pi2=pi**2 
+       fact=(3.d0*pi2/2.d0)**(2.d0/3.d0) 
+       hbc=197.327d0
+       hbc2=hbc**2
+       xm=938.926d0 
+       tfact=(3.d0*hbc2/10.d0/xm)
+       totfact=fact*tfact
+           
+       alpha=-29.47-46.74*(k0+44.21)/(k0-166.11)
+       beta=23.37*(k0+254.53)/(k0-166.11)       
+       sigma=(k0+44.21)/210.32                   
+        
+       earat = totfact*(datapt)**(2.d0/3.d0) + (alpha/2.d0)*(rat)+
+     1    (beta/(sigma + 1.d0))*(rat)**(sigma) 
+
+       end 
+       
+
 c-------------------------------------------------
 c           Volume Nuclear Energy Term           |  
 c-------------------------------------------------
@@ -294,33 +349,17 @@ c      density and the symmetric energy parameter.
      4                 xdatas(100),xdatan(100)
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
        common/azn/ta, tz, tn
+       common/readpar/n_read
        dimension ee(100),ee2(100) 
        dimension xx(100)            
-
+        
 c  Generates the interpolated neutron matter EoS
 c  parametrization of empirical EoS for symmmetric nuclear matter
+           
+          
+c        
 
-       pi2=pi**2 
-       fact=(3.d0*pi2/2.d0)**(2.d0/3.d0) 
-       hbc=197.327d0
-       hbc2=hbc**2
-       xm=938.926d0 
-       tfact=(3.d0*hbc2/10.d0/xm)
-       totfact=fact*tfact
-c
-       alpha=-29.47-46.74*(k0+44.21)/(k0-166.11)
-       beta=23.37*(k0+254.53)/(k0-166.11)
-       sigma=(k0+44.21)/210.32
        gam=0.72d0
-       alph=0.2d0 
-       a1=119.14d0
-       b1=-816.95d0
-       c1=724.51d0
-       d1=-32.99d0
-       d2=891.15d0
-       ff1=a1*2.d0*(0.5d0)**(5.d0/3.d0)
-       ff2=d1*2.d0*(0.5d0)**(5.d0/3.d0) + 
-     1     d2*2.d0*(0.5d0)**(8.d0/3.d0) 
 
        nintv=nxdata-1
        nintv2=nsnm-1 
@@ -344,15 +383,17 @@ c
           end if
           alp2=alp**2
 
+          if(n_read .eq. 5) then 
+              goto 4295
+                   
 c         phenom_eos_section
-
+           
           rat=datapt/rho0
-          ee(i)=ff1*(datapt)**(2.d0/3.d0) + b1*datapt +
-     1    c1*(datapt)**(alph+1.d0) + ff2*(datapt)**(5.d0/3.d0) 
-
-          ee2(i)=totfact*(datapt)**(2.d0/3.d0) + (alpha/2.d0)*(rat)+
-     1    (beta/(sigma + 1.d0))*(rat)**(sigma) 
-
+              
+          ee(i) = eafff(datapt)
+           
+          ee2(i) = earat(datapt) 
+             
           if(mic.eq.1) go to 3355 
          
              if(isnm.eq.1) then
@@ -380,6 +421,10 @@ c     Calculating the Energy per Particle due to Nuclear Forces
           else 
              pt=e0+(alp2)*esym      
           end if        
+
+4295      if(n_read .eq. 5) then 
+              e0 = dcsval(datapt,nintv,breaky,cscoefy) 
+              pt = e0     
 
 c          write(000,*) datapt, e0
                        

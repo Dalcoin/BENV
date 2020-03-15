@@ -2,6 +2,7 @@
 # Written by Randy Millerson
 
 import subprocess
+import sys
 
 #Parameter Input and sorting
 par_in = open('serv_par.txt','r')
@@ -225,6 +226,10 @@ subprocess.call("clear", shell=True)
 subprocess.call("rm skin.srt", shell=True)
 subprocess.call("rm opt_par.etr", shell=True)
 subprocess.call("rm run", shell=True)
+
+# Change to False to run 'ref_den.f', if n_read == 5, ref_den.f will not work
+if(True):
+    sys.exit()
 
 #Included in third update 
 #Reference densities run command

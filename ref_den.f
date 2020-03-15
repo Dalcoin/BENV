@@ -17,12 +17,12 @@ c       open(000,file='dump.don')
        
        read(525,*) n0, n1, it1, it2, it3       
        
-       read(515,*) n, it0, it1, it2, it3,
+       read(515,*) n, it0, n_read, it2, it3,    
      1             mic,isnm,isym_emp,k0,rho0,fff
        
        pi = 3.14159d0
        n2 = n-1
-
+               
 c  Generates the interpolated neutron matter EoS
 c  parametrization of empirical EoS for symmmetric nuclear matter
 
