@@ -1,4 +1,4 @@
-c   Progran Initiate Routines: Version 4.0 
+c   Progran Initiate Routines: Version 3.5 
 c   Modified by: Randy Millerson
 
 c---------------------------------------------------------------------------------------------------
@@ -20,8 +20,7 @@ c-------------------------------------------------------------------------------
        common/azn/ta, tz, tn
        common/setup/n1, n2, n3, x1, x2
        common/factor/pi,pi2
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-       common/readpar/n_read 
+       common/parz/n_den
  
        pi=3.141592654d0 
        pi2=pi**2
@@ -40,8 +39,7 @@ c     characteristics of the nucleus
 
 c       open(unit=000,file='dump.don')
        open(unit=515,file='par.don')
-       read(515,*) n, n_den, n_read, n_0, n_1,
-     1             mic,isnm,isym_emp,k0,rho0,fff
+       read(515,*) n, n_den, n_read, n_0, n_1
 
 c        number of points for the Nuclear Matter EoS
 c       n=11
@@ -53,7 +51,7 @@ c       n=11
           nxnm = n_1
        end if
 
-       if((n_read .eq. 0).or.(n_read .eq. 3).or.(n_read .eq. 5)) then
+       if((n_read .eq. 0) .or. (n_read .eq. 3)) then
           open(unit=14,file='ex_nxlo.don')
        else if((n_read .eq. 1) .or. (n_read .eq. 2)) then
           open(unit=14, file='e0_nxlo.don') 
@@ -94,23 +92,16 @@ c       n=11
              read(15,*) xkfn, zdata(i)
              xdatan(i) = xkfn
           end do
-        else if(n_read .eq. 5) then 
-          do i=1,n
-             read(14,*) xkf, ydata(i)
-             xdata(i)= (2.d0/3.d0)*xkf**3/pi2
-          end do 
        end if
 
 
 c       set up interpolation
-       if(n_read .ne. 4 .and. n_read .ne. 5) then
+       if(n_read .ne. 4) then
           call dcsakm(n,xdata,zdata,breakz,cscoefz)
           call dcsakm(n,xdata,ydata,breaky,cscoefy)
        else if(n_read .eq. 4) then
           call dcsakm(n_1,xdataz,zdata,breakz,cscoefz)
           call dcsakm(n_0,xdatas,ydata,breaky,cscoefy)
-       else if(n_read .eq. 5) then 
-          call dcsakm(n, xdata, ydata, breaky, cscoefy)
        end if
 
        return
@@ -130,7 +121,7 @@ c     Main Function: Calculates the energy per particle for given rho() paramete
        common/azn/ta, tz, tn
        common/setup/n1, n2, n3, x1, x2
        common/factor/pi,pi2 
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
        
 c       open(000,file='dump.don')
 
@@ -143,7 +134,7 @@ c     normalize the proton function
           call xnormalize(pi,rp,cp,tz,wp)
        end if
        ap=xnorm
-               
+              
 c     normalize the neutron function
        if(n_den .EQ. 2 .OR. n_den .EQ. 4) then
           call xnormalize(pi,rn,cn,tn,dt)
@@ -162,7 +153,7 @@ c     normalize the neutron function
           call be3(n3,pi,x1,x2,ap,rp,cp,wp)      
        end if    
        energy = (binde1+binde2+binde3)/ta
-       
+
 c       write(000,*) ap, an, binde1, binde2, binde3
                 
        end 
@@ -175,7 +166,7 @@ c
        implicit real*8 (a-h,o-z)                     
        common/paspoi/pas(200),poi(200),x(200),w(200) 
        common/abc/xnorm 
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
 ca
 c       open(000,file='dump.don')
        
@@ -282,53 +273,6 @@ c-------------------------------------------------------------------------------
 c                                        SEMF Components                                           |
 c---------------------------------------------------------------------------------------------------
 
-       function eafff(rho)
-       implicit real*8(a-h,o-z)
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-
-        
-       a1=119.14d0
-       b1=-816.95d0
-       c1=724.51d0
-       d1=-32.99d0
-       d2=891.15d0
-       ff1=a1*2.d0*(0.5d0)**(5.d0/3.d0)
-       ff2=d1*2.d0*(0.5d0)**(5.d0/3.d0) + 
-     1     d2*2.d0*(0.5d0)**(8.d0/3.d0) 
-         
-       alph=0.2d0 
-        
-       ee=ff1*(rho)**(2.d0/3.d0) + b1*rho +
-     1 c1*(rho)**(alph+1.d0) + ff2*(rho)**(5.d0/3.d0) 
-
-       eafff = ee
-       end   
-
-
-       function earat(rho)
-       implicit real*8(a-h,o-z)
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-       
-       rat=rho/rho0
-
-       pi2=pi**2 
-       fact=(3.d0*pi2/2.d0)**(2.d0/3.d0) 
-       hbc=197.327d0
-       hbc2=hbc**2
-       xm=938.926d0 
-       tfact=(3.d0*hbc2/10.d0/xm)
-       totfact=fact*tfact
-           
-       alpha=-29.47-46.74*(k0+44.21)/(k0-166.11)
-       beta=23.37*(k0+254.53)/(k0-166.11)       
-       sigma=(k0+44.21)/210.32                   
-        
-       earat = totfact*(datapt)**(2.d0/3.d0) + (alpha/2.d0)*(rat)+
-     1    (beta/(sigma + 1.d0))*(rat)**(sigma) 
-
-       end 
-       
-
 c-------------------------------------------------
 c           Volume Nuclear Energy Term           |  
 c-------------------------------------------------
@@ -347,19 +291,13 @@ c      density and the symmetric energy parameter.
      1                 breakz(75),cscoefz(4,75),       
      2                 breaky(75),cscoefy(4,75),  
      4                 xdatas(100),xdatan(100)
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
        common/azn/ta, tz, tn
-       common/readpar/n_read
        dimension ee(100),ee2(100) 
        dimension xx(100)            
-        
+
 c  Generates the interpolated neutron matter EoS
 c  parametrization of empirical EoS for symmmetric nuclear matter
-           
-          
-c        
-
-       gam=0.72d0
 
        nintv=nxdata-1
        nintv2=nsnm-1 
@@ -382,54 +320,13 @@ c
              alp=(rho_fy(r,a2,b2,c2,tn)-rho_fy(r,a,b,c,tz))/datapt
           end if
           alp2=alp**2
-
-          if(n_read .eq. 5) then 
-              goto 4295
-          end if
-                   
-c         phenom_eos_section
-           
-          rat=datapt/rho0
-              
-          ee(i) = eafff(datapt)
-           
-          ee2(i) = earat(datapt) 
-             
-          if(mic.eq.1) go to 3355 
-         
-             if(isnm.eq.1) then
-                e0=ee(i) 
-             else 
-                e0=ee2(i) 
-             end if 
-         
-             if(datapt.le.0.0019.and.e0.gt.0.d0) then
-                e0=0.d0 
-             end if
-               
-             esym=22.d0*rat**gam + 12.d0*rat**(2.d0/3.d0) 
-c            pt=e0+(alp**2)*esym         
-             go to 3366 
-
           
-c     interpolation of Nuclear Matter Energies
-3355      e0=dcsval(datapt,nintv,breaky,cscoefy)
-3366      enm=dcsval(datapt,nintv,breakz,cscoefz)
+c     interpolation of Neutron Matter Energies
+          e0=dcsval(datapt,nintv,breaky,cscoefy)
+          enm=dcsval(datapt,nintv,breakz,cscoefz)
 c     Calculating the Energy per Particle due to Nuclear Forces
 
-          if(isym_emp.eq.0) then
-             pt=e0+(alp2)*(enm-e0) 
-          else 
-             pt=e0+(alp2)*esym      
-          end if        
-
-4295      if(n_read .eq. 5) then 
-              e0 = dcsval(datapt,nintv,breaky,cscoefy) 
-              pt = e0     
-          end if
-
-c          write(000,*) datapt, e0
-                       
+          pt=e0+(alp2)*(enm-e0)              
           pt=pt*datapt*r**2.d0*ww
           sum=sum+pt
        
@@ -454,13 +351,13 @@ c-------------------------------------------------
        common/paspoi/pas(200),poi(200),x(200),w(200) 
        common/binding/totbe,binde1,binde2,binde3
        common/azn/ta, tz, tn
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
        dimension f1(200),f2(200) 
        dimension break1(200),cscoef1(4,200)
        dimension break2(200),cscoef2(4,200)
        
        beta=1.d0     
-c       fff = 65.d0
+       fff = 65.d0
       
        n2=nn-1 
        call lgauss(nn)
@@ -522,7 +419,7 @@ c-------------------------------------------------
        common/paspoi/pas(200),poi(200),x(200),w(200) 
        common/binding/totbe,binde1,binde2,binde3
        common/azn/ta, tz, tn
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
        dimension rp(200),wrp(200)       
 c      
        n1=n
@@ -584,7 +481,7 @@ c-------------------------------------------------
        common/paspoi/pas(200),poi(200),xfs(200),wfs(200)
        common/charge/chr 
        common/azn/ta, tz, tn
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den                 
 
        a=0.70 
 c      a=0.87*dsqrt(2.d0/3.d0)
@@ -635,7 +532,7 @@ c-------------------------------------------------
        implicit real*8(a-h,o-z)
        common/paspoi/pas(200),poi(200),xfs(200),wfs(200)
        common/main/fint1,fint2,fint3
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
   
        sum1=0.d0
        sum2=0.d0
@@ -684,7 +581,7 @@ c-------------------------------------------------------------------------------
        implicit real*8(a-h,o-z) 
        common/paspoi/pas(200),poi(200),xfs(200),wfs(200)
        common/form_pars/ff,ff2,ff2_log
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/parz/n_den
 
        xinf = 0.d0
        x1 = 0.d0
