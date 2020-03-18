@@ -475,7 +475,7 @@ c       fff = 65.d0
           else if(n_den .eq. 4) then
              f1(i)=rho_fy(r,a,b,c,tz)
           end if
-          if(n_den .eq. 2) then
+          if(n_den .ne. 2) then
              f2(i)=rho(r,a2,b2,c2) 
           else if(n_den .eq. 3) then
              f2(i)=rho_3pf(r,a2,b2,c2,wt2)
@@ -678,6 +678,8 @@ c
        fint2=dsqrt(sum2*const2)
        fint3=dsqrt(sum3*const3)
        end 
+
+
 c---------------------------------------------------------------------------------------------------
 
        subroutine form_fac(qf,ac,rc,dc,wc,pi,tz,n)
