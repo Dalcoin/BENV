@@ -90,7 +90,7 @@ c          write(000,*) xkf(i), den(i), e0(i), e1(i), esym(i)
 
        if(mic .NE. 1 .OR. isym_emp .NE. 0) then
           do i=1,n
-             write(707,*) xkf(i) den(i) e0(i), e1(i), esym(i)
+             write(707,*) xkf(i), den(i), e0(i), e1(i), esym(i)
           end do
        end if
        

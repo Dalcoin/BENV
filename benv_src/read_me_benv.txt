@@ -1,7 +1,7 @@
 
 
 --------------------------------|
-	 BENV directions        |
+	 BENV directions            |
 --------------------------------|--------------------------|
                                                            |
 Credits:                                                   |  
@@ -30,7 +30,7 @@ symmetry energy coefficient and reference density.                              
 -----------------------------------------------------------------------------------------------------------------------|
                                                                                                                        |
                                                                                                                        | 
------------------------------------------------------------------------------------------------------------------------|                                     
+-----------------------------------------------------------------------------------------------------------------------|
                                                                                                                        |
 There are three parameter files which can be used to quickly and efficiently modify how the program runs:              |
                                                                                                                        | 
@@ -61,15 +61,13 @@ Format is:      I1 I2 I3 I4 I5                                                  
                                                                                                                        |
 I1: number of points if a single EOS is chosen                                                                         |
 I2: Choice of density function:                                                                                        | 
-	2: 2pf                                                                                                         |
-	3: 3pf                                                                                                         |
-	4: Folded-Yukawa                                                                                               |
+	2: 2pf                                                                                                             |
+	3: 3pf                                                                                                             |
+	4: Folded-Yukawa                                                                                                   |
 I3: Choice of EOS input:                                                                                               |
-	0: "ex_nxlo.don": e0 and e1 same length; format: "kf  e0  e1"                                                  |
-	1: "e0_nxlo.don" & "e1_nxlo.don": same length, adjusted e0 kf to den: "kf  e0"  &  "kf  e1"                    |
-	2: "e0_nxlo.don" & "e1_nxlo.don": same length: "den  e0"  & "den  e1"                                          |   
-	3: "ex_nxlo.don": e0 and e1 same length; format: "den  e0  e1"                                                 | 
-	4: "e0_nxlo.don" & "e1_nxlo.don": differing length allowed: "den0  e0"  &  "den1  e1"                          |
+	0: "ex_nxlo.don": e0 and e1 same length; format: "kf  e0  e1"                                                      |
+	1: "e0_nxlo.don" & "e1_nxlo.don": various lengths, adjusted e0 kf to den: "kf  e0"  &  "kf  e1"                    |
+	2: "e0_nxlo.don" only: "kf  e0"                                                                                    |   
 I4: Number of points e0 if differing length EOS                                                                        |
 I5: Number of points e1 if differing length EOS                                                                        |
                                                                                                                        |
@@ -144,17 +142,13 @@ BE:    Binding Energy                                                           
 Esymc: Symmetry Energy Coefficient                                                                                     |
 Ref_d: Reference Density                                                                                               |
                                                                                                                        |     
------------------------------------------------------------------------------------------------------------------------|
-                                                                                                                       |
-                                                                                                                       |                       
+-----------------------------------------------------------------------------------------------------------------------|                                                                                                                                |
 Le sommaire: Le logiciel "Benv_eb_3.0" calcule les parameters que ont a voir avec l'energie de liason et la peau de    |  
              neutron. Il est compatible avec plusieurs styles d'equation du l'etat nuclaire et peut accepter de        |   
              multiples entrees. Il existe des options a augmenter graduellement le numero atomique et nombre de masse. |
                                                                                                                        |  
 -----------------------------------------------------------------------------------------------------------------------|
-                                                                                                                       |                
-                                                                                                                       |                
-                                                                                                                       |                 
+                                                                                                                       |      
   ______        _    _           _                 _____         _____                                                 | 
  |  ____|      | |  | |         | |               |_   _|       |  __ \                                                |
  | |__  __  __ | |  | |_ __ ___ | |__  _ __ __ _    | |  _ __   | |__) | __ _   _ _ __   __ _ ___                      |
@@ -165,7 +159,3 @@ Le sommaire: Le logiciel "Benv_eb_3.0" calcule les parameters que ont a voir ave
                                                                                                                        |
                                                                                                                        |  
 -----------------------------------------------------------------------------------------------------------------------|
-
-
-
-

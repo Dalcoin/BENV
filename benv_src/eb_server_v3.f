@@ -10,8 +10,7 @@ c-------------------------------------------------------------------------------
 c      SERVER INTIALIZATION
       
 c       open (unit=000,file='dump.don')
-       open (unit=8,file='values.in2016')
-c       open (unit=14,file='par.don')
+       open (unit=8,file='nucleus.don')
                        
        read(8,*) n1,n2,n3
        read(8,*) x1,x2
