@@ -85,7 +85,7 @@ c       set up interpolation
           call dcsakm(n,xdata,zdata,breakz,cscoefz)
           call dcsakm(n,xdata,ydata,breaky,cscoefy)
        else if(n_read .eq. 1) then
-          call dcsakm(n_1,xdataz,zdata,breakz,cscoefz)
+          call dcsakm(n_1,xdatan,zdata,breakz,cscoefz)
           call dcsakm(n_0,xdatas,ydata,breaky,cscoefy)
        else if(n_read .eq. 2) then 
           call dcsakm(n, xdata, ydata, breaky, cscoefy)
@@ -375,6 +375,7 @@ c      phenom_eos_section
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
 
 c      Calculates the energy-per-particle for neutron nuclear matter from a density
+c      intialization (calling init) is assumed
 
        nintv2=nxnm-1 
        e1_val = dcsval(rho,nintv2,breakz,cscoefz)
