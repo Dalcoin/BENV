@@ -109,10 +109,17 @@ c     Main Function: Calculates the energy per particle for given rho() paramete
        common/setup/n1, n2, n3, x1, x2
        common/factor/pi,pi2 
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
+       common/readpar/n_read 
        
 c       open(000,file='dump.don')
 
        dt = 0.d0
+
+      if(n_read .eq. 2) then 
+          rp = rn
+          cp = cn 
+          wp = wn
+      end if
 
 c     normalize the proton function
        if(n_den .EQ. 2 .OR. n_den .EQ. 4) then

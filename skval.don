@@ -41,8 +41,10 @@ Notes on set-up
 
 
 
+A skval loop:
 
-
+A  Z  inc  inv  mirror  reset
+4  2  1    0    0       1
 
 
 
