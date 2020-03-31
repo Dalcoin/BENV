@@ -9,45 +9,58 @@ import time							#module with timing functions
 # start the FORTRAN server process
 server = subprocess.Popen("./xeb_server", stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr = subprocess.STDOUT)
 
-file_par = open('par.don', 'r')
-lines_par = file_par.readlines()
-file_par.close()
+# Get optiosn from 'par' file 
+with open('par.don', 'r') as file_par:
+    lines_par = file_par.readlines()
+       
 l_par = lines_par[0].strip("\n")
-s_par = l_par.split(" ")
-s_par = filter(None,s_par)
+s_par = filter(None,l_par.split(" "))
 
-garbage = int(s_par[0])
 n_opt = int(s_par[1])
+nread = int(s_par[2]) 
 
 function_call_counter = 0	#counts the number of energy() evaluations
 
 # definition of function to minimize
 def energy(v): # v is a list of parameters. Modified Woods-Saxon Distribution v = [rp, cp, wp, rn, cn, wn]
-        global n_opt
-	global function_call_counter
+    global n_opt
+    global function_call_counter
+    nl = "\n"
 	#write the "EVALUATE ENERGY" command (icmd = 0)  and parameter values into the STDIN of the FORTRAN server
-        if(n_opt != 3):
-        	server.stdin.writelines(["0\n" + str(v[0]) + "\n" + str(v[1]) + "\n" + str(0.0) + "\n" + str(v[2]) + "\n" + str(v[3]) + "\n" + str(0.0) + "\n"])
+    if(nread != 2):
+        if(n_opt == 2 or n_opt == 4):
+            server.stdin.writelines(["0\n"+str(v[0])+nl+str(v[1])+nl+str(0.0)+nl+str(v[2])+nl+str(v[3])+nl+str(0.0)+nl])
         if(n_opt == 3):
-                server.stdin.writelines(["0\n" + str(v[0]) + "\n" + str(v[1]) + "\n" + str(v[2]) + "\n" + str(v[3]) + "\n" + str(v[4]) + "\n" + str(v[5]) + "\n"])        
-	#wait for FORTRAN server responce and read the energy value from from its STDOUT 
-	en = float(server.stdout.readline())
-	
-	function_call_counter += 1	#increase the counter
-	
-	#print out parameters and energy every n iterations
-	if True: #set to False to disable printing
-		n = 10
-		if n == 1 or (function_call_counter % n) == 1:
-			print v, en	
-	return en 	#return the value of the energy
+            server.stdin.writelines(["0\n"+str(v[0])+nl+str(v[1])+nl+str(v[2])+nl+str(v[3])+nl+str(v[4])+nl+str(v[5])+nl])     
+    else:
+        if(n_opt == 2 or n_opt == 4):
+            server.stdin.writelines(["0\n"+str(0.0)+nl+str(0.0)+nl+str(0.0)+nl+str(v[0])+nl+str(v[1])+nl+str(0.0)+nl])
+        if(n_opt == 3):
+            server.stdin.writelines(["0\n"+str(0.0)+nl+str(0.0)+nl+str(0.0)+nl+str(v[0])+nl+str(v[1])+nl+str(v[2])+nl])  
+         
+      
+    #wait for FORTRAN server responce and read the energy value from from its STDOUT 
+    en = float(server.stdout.readline())
+    function_call_counter += 1 #increase the counter
+    #print out parameters and energy every n iterations
+    if True: #set to False to disable printing
+        n = 10
+        if n == 1 or (function_call_counter % n) == 1:
+            print v, en	
+    return en #return the value of the energy
 
-	
+
 # Here goes the main program ----------------->
-if(n_opt != 3):
-	v = [7.0,0.3,7.0,0.3] #set up the initial guess for parameters
-if(n_opt == 3):
-	v = [7.0,0.3,3.0,7.0,0.3,3.0]
+if(nread != 2):
+    if(n_opt != 3):
+        v = [7.0,0.3,7.0,0.3] #set up the initial guess for parameters
+    if(n_opt == 3):
+        v = [7.0,0.3,3.0,7.0,0.3,3.0]
+else:
+    if(n_opt != 3):
+        v = [7.0,0.3] #set up the initial guess for parameters
+    if(n_opt == 3):
+        v = [7.0,0.3,3.0]    
 #v = [3.0,0.4,3.0,0.4]   #O,N,Mg,Al
 #v = [6.0,0.4,6.0,0.4]   #Pb
 
@@ -93,10 +106,18 @@ nma=res.x
 #outputfile.writelines([str(res.x), "\n", str(res.fun), "\n"])  #Single variable optimization 
 #outputfile.writelines([str(res.x),"\n",str(nma[0])," ",str(nma[1])," ",str(nma[2])," ",str(nma[3]),"\n"]) #3pf optimization
 
-if(n_opt != 3):
-	outputfile.writelines([str(nma[0]),"  ",str(nma[1]),"  ",str(0.0),"  ",str(nma[2]),"  ",str(nma[3]),"  ",str(0.0),"\n"])
-if(n_opt == 3):
-        outputfile.writelines([str(nma[0]),"  ",str(nma[1]),"  ",str(nma[2]),"  ",str(nma[3]),"  ",str(nma[4]),"  ",str(nma[5]),"\n"])
-outputfile.close()
+spc = "   "
 
+if(nread != 2):
+    if(n_opt != 3):
+        outputfile.writelines([str(nma[0]),spc,str(nma[1]),spc,str(0.0),spc,str(nma[2]),spc,str(nma[3]),spc,str(0.0),"\n"])
+    if(n_opt == 3):
+        outputfile.writelines([str(nma[0]),spc,str(nma[1]),spc,str(nma[2]),spc,str(nma[3]),spc,str(nma[4]),spc,str(nma[5]),"\n"])
+else:
+    if(n_opt != 3):
+        outputfile.writelines([str(nma[0]),spc,str(nma[1]),spc,str(0.0),spc,str(nma[0]),spc,str(nma[1]),spc,str(0.0),"\n"])
+    if(n_opt == 3):
+        outputfile.writelines([str(nma[0]),spc,str(nma[1]),spc,str(nma[2]),spc,str(nma[0]),spc,str(nma[1]),spc,str(nma[2]),"\n"])
+
+outputfile.close()
 
