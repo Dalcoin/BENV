@@ -1,5 +1,0 @@
- - include 'benvals' formatter in the benv class
- - include option e0 only calculations  
- - test all options 
- - add all the fanfreluches (error printing, cutting files, write documenation... etc)
-
