@@ -43,3 +43,25 @@ pair examples:
     40,20
     208.82
 
+
+"results.srt" ordering:
+
+The order of the output data found in 'results.srt' is as follows:
+
+rp  cp  wp  rn  cn  wn  nr  pr  ns  cr  be  sc  A  Z    
+
+
+rp : radial parameter (proton)
+cp : diffuse parameter (proton)
+wp : folding parameter (proton)
+rn : radial parameter (neutron)
+cn : diffuse parameter (neutron)
+wn : folding parameter (neutron)
+nr : neutron r.m.s. radius 
+pr : proton r.m.s. radius
+ns : neutron skin 
+cr : charge radius 
+be : binding energy
+sc : symmetry-energy coefficient 
+A  : Atomic mass 
+Z  : Atomic number 
