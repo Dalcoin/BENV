@@ -29,7 +29,7 @@ The Fortran source code was compiled with the Absoft 64-bit Pro Fortran 15.0.0 c
 shell scrits reflect this.
 
 The IMSL(R) Fortran Numerical Math Library (FNML) is referenced in the Fortran source code and must be installed. 
-No affiliation is asserted nor implied.
+No affiliation is asserted nor implied. [ISML link](https://www.absoft.com/products/imsl-fortran-numerical-libraries/)
 
 The OS used when testing this program is Red Hat Enterprise Linux Server release 6.6 (Santiago)
 
@@ -53,6 +53,128 @@ A successful compilation should produce the following:
 
 ![successful compilation](https://github.com/Dalcoin/BENV/blob/master/successful_compile.JPG)
 
+## Documentation
+
+### EOS formatting: Using "benv.benv_eos_loop"
+
+EoS files should be placed inside the 'eos' folder. Using the EoS loop function ("benv_eos_loop") the
+script will attempt to find valid EoS matches from files with properly formatted names:
+
+e0 : Symmetric nuclear matter EoS 
+e1 : Neutron nuclear matter EoS
+
+Nameing convensions:
+
+1) e0 and e1 in the same file
+
+   Files formatted with 'n' number of line. 
+   Each line should contain three floats formatted as follows: 
+   
+   kf  e0  e1
+
+   Files of this format must be named according to the following rules: 
+  
+   * contain the string 'ex' exactly once, in the name the characters may be either case
+   * must NOT contain the string 'e0' or 'e1' in either case 
+
+   Here kf is the fermi momentum corrosponding to a given density in *symmetric* matter
+   for both e0 and e1   
+     
+ 
+2) e0 and e1 in seperate files:
+
+   One of the files should have 'n0' number of lines and contain the e0 values
+
+   Each line should contain two floats formatted as follows: 
+   
+   kf0  e0 
+
+   Files of this first type must be named according to the following rules: 
+  
+   * contain the string 'e0' exactly once in the file's name, the characters may be of either case
+   * must NOT contain the strings 'e1' or 'ex', in either case 
+
+   here kf is the fermi momentum corrosponding to the e0 value 
+
+   --------------------------------------------------------------------------------------
+
+   The other file should have 'n1' number of lines and contain the e1 values
+
+   Each line should contain two floats formatted as follows: 
+   
+   kf1  e1 
+
+   Files of this first type must be named according to the following rules: 
+  
+   * contain the string 'e1' exactly once in the file's name, the characters may be of either case
+   * must NOT contain the strings 'e0' or 'ex' in either case 
+
+   here kf is the fermi momentum corrosponding to the e1 value 
+   *unlike in the 'ex' format it is not adjusted to symmetric matter density* 
+
+   --------------------------------------------------------------------------------------
+   
+   **n0 does not have to equal n1**
+
+   There is an additional rule:
+
+   * the to match an e0 and e1 file, the files must have the same name execpt for the '1' and '0'
+
+   these work:
+
+      example_e0.don & example_e1.don  
+      e0_1.don & e1_1.don 
+
+   these do not:
+
+      e0_ex.don & e1_ex.don 
+      e0_new.don & e1_new_2.don 
 
 
+
+### SKVAL loop
+
+The file 'skval.don' is intended to be formatted for the 'benv.skval_loop' function.
+
+There are currently two modes in which the file can be parsed. Whichh is chosen is 
+determined by the True or False value found after the appropriate text under the 
+loop heading. The relevent section appears as follows:
+
+
+>#----Loop----#
+>
+>INCloop:False
+>AZpairs:True
+
+Each boolean must be specified with 'True' for true or 'False' for false. Any other 
+characters will not be properly understood. 
+
+If INCloop is True, then the incloop looping will be attempted, else if 
+AZpairs is True, then the program will search for nuclei denoted by two integers A and Z
+formatted as 'A,Z'
+
+1) The INCloop: Documentation to be added 
+
+2) The AZpairs:
+
+   The azpairs should be placed after the 'loop' section header. 
+   Each A,Z pair should consist of two integers seperated by a comma 
+   The first A, corrosponds to the mass number, the second Z, 
+   corrosponds to the atomic number. 
+ 
+   For example: 
+
+   >#-------------#
+   >#--Formating--#-------#
+   >#-------------#
+   >
+   >#----Loop----#
+   >
+   >16,8
+   >40,20
+   >48,20
+   >56,28
+   >208,82
+ 
+ 
 
