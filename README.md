@@ -141,10 +141,10 @@ determined by the True or False value found after the appropriate text under the
 loop heading. The relevent section appears as follows:
 
 
->#----Loop----#
+>#----Loop----#  
 >   
->INCloop:False
->AZpairs:True
+>INCloop:False  
+>AZpairs:True  
 
 Each boolean must be specified with 'True' for true or 'False' for false. Any other 
 characters will not be properly understood. 
@@ -164,8 +164,8 @@ formatted as 'A,Z'
  
    For example: 
 
-   >#-------------#
-   >#--Formating--#-------#
+   >#-------------#  
+   >#--Formating--#-------#  
    >#-------------#
    >   
    >#----Loop----#
