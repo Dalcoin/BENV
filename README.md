@@ -142,7 +142,7 @@ loop heading. The relevent section appears as follows:
 
 
 >#----Loop----#
->
+>   
 >INCloop:False
 >AZpairs:True
 
@@ -167,14 +167,14 @@ formatted as 'A,Z'
    >#-------------#
    >#--Formating--#-------#
    >#-------------#
-   >
+   >   
    >#----Loop----#
-   >
-   >16,8
-   >40,20
-   >48,20
-   >56,28
-   >208,82
+   >   
+   >16,8   
+   >40,20   
+   >48,20   
+   >56,28   
+   >208,82   
  
  
 
