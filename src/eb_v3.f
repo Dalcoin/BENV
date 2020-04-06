@@ -46,7 +46,7 @@ c       open(unit=000,file='dump.don')
 c        number of points for the Nuclear Matter EoS
 c       n=11
 
-       if(n_read .ne. 1) then
+       if(n_read .eq. 0) then
           open(unit=14,file='ex_nxlo.don')
           nxdata = n
           nxnm = n 
@@ -54,7 +54,10 @@ c       n=11
           open(unit=14, file='e0_nxlo.don') 
           open(unit=15, file='e1_nxlo.don')
           nxdata = n_0
-          nxnm = n_1
+          nxnm = n_1   
+       else if(n_read .eq. 2) then
+          open(unit=14, file='e0_nxlo.don')
+          nxdata = n_0
        end if
            
        if(n_read .eq. 0) then
@@ -62,7 +65,6 @@ c       n=11
              read(14,*) xkf, ydata(i), zdata(i)
              xdata(i)= (2.d0/3.d0)*xkf**3/pi2
           end do
-
         else if(n_read .eq. 1) then
           do i=1,n_0
              read(14,*) xkfs, ydata(i)
@@ -72,9 +74,8 @@ c       n=11
              read(15,*) xkfn, zdata(i)
              xdatan(i) = (1.d0/3.d0)*xkfn**3/pi2
           end do
-
         else if(n_read .eq. 2) then 
-          do i=1,n
+          do i=1,n_0
              read(14,*) xkf, ydata(i)
              xdata(i)= (2.d0/3.d0)*xkf**3/pi2
           end do 
@@ -88,7 +89,7 @@ c       set up interpolation
           call dcsakm(n_1,xdatan,zdata,breakz,cscoefz)
           call dcsakm(n_0,xdatas,ydata,breaky,cscoefy)
        else if(n_read .eq. 2) then 
-          call dcsakm(n, xdata, ydata, breaky, cscoefy)
+          call dcsakm(n_0, xdata, ydata, breaky, cscoefy)
        end if
                  
        return
