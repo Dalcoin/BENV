@@ -1,9 +1,12 @@
-c   Progran Initiate Routines: Version 4.0 
-c   Modified by: Randy Millerson
+c   BENV fortran Routines and Functions: Version 5.0 
+c   Modified by: Dalcoin
 
 c---------------------------------------------------------------------------------------------------
 c                                      Initalization Routine                                       |
 c---------------------------------------------------------------------------------------------------
+
+c   The "init" subroutine intializes splines used to 
+c   compute Binding Energy and nuclei parameters 
 
        subroutine init(n1_, n2_, n3_, x1_, x2_, ta_, tz_) 
        implicit real*8 (a-h,o-z)                     
@@ -43,9 +46,6 @@ c       open(unit=000,file='dump.don')
        read(515,*) n, n_den, n_read, n_0, n_1,
      1             mic,isnm,isym_emp,k0,rho0,fff
 
-c        number of points for the Nuclear Matter EoS
-c       n=11
-
        if(n_read .eq. 0) then
           open(unit=14,file='ex_nxlo.don')
           nxdata = n
@@ -55,9 +55,9 @@ c       n=11
           open(unit=15, file='e1_nxlo.don')
           nxdata = n_0
           nxnm = n_1   
-       else if(n_read .eq. 2) then
+       else if(n_read .eq. 2) then           
           open(unit=14, file='e0_nxlo.don')
-          nxdata = n_0
+          nxdata = n
        end if
            
        if(n_read .eq. 0) then
@@ -75,7 +75,7 @@ c       n=11
              xdatan(i) = (1.d0/3.d0)*xkfn**3/pi2
           end do
         else if(n_read .eq. 2) then 
-          do i=1,n_0
+          do i=1,n
              read(14,*) xkf, ydata(i)
              xdata(i)= (2.d0/3.d0)*xkf**3/pi2
           end do 
@@ -89,7 +89,7 @@ c       set up interpolation
           call dcsakm(n_1,xdatan,zdata,breakz,cscoefz)
           call dcsakm(n_0,xdatas,ydata,breaky,cscoefy)
        else if(n_read .eq. 2) then 
-          call dcsakm(n_0, xdata, ydata, breaky, cscoefy)
+          call dcsakm(n, xdata, ydata, breaky, cscoefy)
        end if
                  
        return
@@ -203,26 +203,26 @@ c-------------------------------------------------------------------------------
 
        function rho(xr,xa,xb,xc)
        implicit real*8 (a-h,o-z)                     
-          rho=xa/(1.d0+exp((xr-xb)/xc))
+          rho=xa/(1.d0+dexp((xr-xb)/xc))
        end 
 
 
        function rho_3pf(xr,xa,xb,xc,xw)
        implicit real*8 (a-h,o-z)
-          rho_3pf=(1.d0+((xr**2)*abs(xw))/(xb**2))*
-     1        (xa/(1.d0+exp((xr-xb)/xc)))
+          rho_3pf=(1.d0+((xr**2)*dabs(xw))/(xb**2))*
+     1        (xa/(1.d0+dexp((xr-xb)/xc)))
        end 
 
 
        function rho_fy(xr,xa,xb,xc,xg)
        implicit real*8(a-h,o-z)
-       cof = (3.d0*xg)/(4.d0*(3.14159d0)*xb**3)
-       erterm = (xc/xr)*exp(-(xr/xc))
-       ebrterm = (xc/xr)*exp(-(xb/xc))
-       sh = sinh(xb/xc)
-       ch = cosh(xb/xc)
+       cof = (3.d0*xg)/(4.d0*(3.14159d0)*xb*xb*xb)
+       erterm = (xc/xr)*dexp(-(xr/xc))
+       ebrterm = (xc/xr)*dexp(-(xb/xc))
+       sh = dsinh(xb/xc)
+       ch = dcosh(xb/xc)
        if(xr .lt. xb) then
-          rho_fy = cof*( 1.d0 - ebrterm*(1.d0+(xb/xc))*sinh(xr/xc))
+          rho_fy = cof*(1.d0-ebrterm*(1.d0+(xb/xc))*dsinh(xr/xc))
        else if(xr .gt. xb) then
           rho_fy = cof*erterm*((xb/xc)*ch - sh)
        end if
@@ -234,30 +234,30 @@ c-------------------------------------------------
 
        function devrho(xr,xa,xb,xc)
        implicit real*8 (a-h,o-z)       
-          devrho=(-(xa/xc)*exp((xr-xb)/xc))/
-     1 ((1.d0+exp((xr-xb)/xc))**2)    
+          devrho=(-(xa/xc)*dexp((xr-xb)/xc))/
+     1 ((1.d0+dexp((xr-xb)/xc))**2)    
        end 
 
 
        function devrho_3pf(xr,xa,xb,xc,xw)
        implicit real*8 (a-h,o-z)
           devrho_3pf = devrho(xr,xa,xb,xc) + 
-     1    2.d0*(abs(xw)/xb**2)*xr*rho(xr,xa,xb,xc)+
-     1    (abs(xw)/xb**2)*(xr**2)*devrho(xr,xa,xb,xc)
+     1    2.d0*(dabs(xw)/xb**2)*xr*rho(xr,xa,xb,xc)+
+     1    (dabs(xw)/xb**2)*(xr**2)*devrho(xr,xa,xb,xc)
        end
 
 
        function devrho_fy(xr,xa,xb,xc,xg)
        implicit real*8(a-h,o-z)
        cof = (3.d0*xg)/(4.d0*(3.14159d0)*xb**3)
-       erterm = (xc/xr)*exp(-(xr/xc))
-       ebrterm = (xc/xr)*exp(-(xb/xc))
-       sh = sinh(xb/xc)
-       ch = cosh(xb/xc)
-       shr = sinh(xr/xc)
-       chr = cosh(xr/xc)
+       erterm = (xc/xr)*dexp(-(xr/xc))
+       ebrterm = (xc/xr)*dexp(-(xb/xc))
+       sh = dsinh(xb/xc)
+       ch = dcosh(xb/xc)
+       shr = dsinh(xr/xc)
+       chr = dcosh(xr/xc)
        if(xr .lt. xb) then
-          devrho_fy = -cof*(1.d0+(xb/xc))*exp(-xb/xc)*
+          devrho_fy = -cof*(1.d0+(xb/xc))*dexp(-xb/xc)*
      1                ((chr/xr)-(xc*shr/xr**2))
        else if(xr .gt. xb) then
           devrho_fy = -cof*((xb/xc)*ch - sh)*
@@ -270,21 +270,21 @@ c-------------------------------------------------------------------------------
 c                                        SEMF Components                                           |
 c---------------------------------------------------------------------------------------------------
 
-       subroutine rho_from_coefs(ap,rp,cp,wp,an,rn,cn,wn)
+       subroutine rho_from_coefs(r,ap,rp,cp,wp,an,rn,cn,wn)
        implicit real*8(a-h,o-z)
        common/rhoeval/rhoneu,rhopro,rhotot,alphapar
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff       
        common/azn/ta, tz, tn
 
        if(n_den .EQ. 2) then
-          rhoneu = rho(dr,an,rn,cn)
-          rhopro = rho(dr,ap,rp,cp)          
+          rhoneu = rho(r,an,rn,cn)
+          rhopro = rho(r,ap,rp,cp)          
        else if(n_den .EQ. 3) then
-          rhoneu = rho_3pf(dr,an,rn,cn,wn) 
-          rhopro = rho_3pf(dr,ap,rp,cp,wp)
+          rhoneu = rho_3pf(r,an,rn,cn,wn) 
+          rhopro = rho_3pf(r,ap,rp,cp,wp)
        else if(n_den .EQ. 4) then
-          rhoneu = rho_fy(dr,an,rn,cn,tn) 
-          rhopro = rho_fy(dr,ap,rp,cp,tz)
+          rhoneu = rho_fy(r,an,rn,cn,tn) 
+          rhopro = rho_fy(r,ap,rp,cp,tz)
        end if        
 
        rhotot = rhoneu + rhopro
@@ -294,8 +294,6 @@ c-------------------------------------------------------------------------------
 
        function eafff(rho)
        implicit real*8(a-h,o-z)
-       common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-
         
        a1=119.14d0
        b1=-816.95d0
@@ -318,7 +316,9 @@ c-------------------------------------------------------------------------------
        function earat(rho)
        implicit real*8(a-h,o-z)
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-       common/factor/pi,pi2
+
+       pi=3.141592654d0 
+       pi2=pi*pi
        
        rat=rho/rho0
         
@@ -353,7 +353,7 @@ c      Calculates the energy-per-particle for symmetric nuclear matter from a de
        nintv=nxdata-1
 
 c      phenom_eos_section
-       if(mic.ne.1) then 
+       if(mic.eq.0) then 
        
           if(isnm.eq.1) then
              e0=eafff(rho) 
@@ -460,7 +460,6 @@ c      density and the symmetric energy parameter.
      4                 xdatas(100),xdatan(100)
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
        common/azn/ta, tz, tn
-       common/readpar/n_read
        dimension xx(100)            
         
 c  Generates the interpolated neutron matter EoS
@@ -484,7 +483,7 @@ c  parametrization of empirical EoS for symmmetric nuclear matter
              alp=(rho_fy(r,a2,b2,c2,tn)-rho_fy(r,a,b,c,tz))/datapt
           end if
                       
-          pt=ea(datapt,alp)*datapt*r**2.d0*ww
+          pt=ea(datapt,alp)*datapt*r*r*ww
           sum=sum+pt
        
  20    continue 
@@ -599,7 +598,7 @@ c     external integral
           sum=sum+functex
  20    continue
        
-       binde3=sum*(4.d0*pi)**2*1.44d0
+       binde3=1.44d0*sum*(4.d0*pi)**2
        return
        end
 c---------------------------------------------------------------------------------------------------
@@ -751,15 +750,15 @@ c------------------------------------------------------
           ww = poi(i)
 
           if(n_den .EQ. 2) then
-             rho_t = rho(dr,an,rn,cn) + rho(dr,ap,rp,cp)
-             delt = (rho(dr,an,rn,cn) - rho(dr,ap,rp,cp))/rho_t
+             rho_t = rho(dr,an,rn,cn)+rho(dr,ap,rp,cp)
+             delt = (rho(dr,an,rn,cn)-rho(dr,ap,rp,cp))/rho_t
           else if(n_den .EQ. 3) then
-             rho_t = rho_3pf(dr,an,rn,cn,wn) + rho_3pf(dr,ap,rp,cp,wp)
-             delt = (rho_3pf(dr,an,rn,cn,wn) - 
+             rho_t = rho_3pf(dr,an,rn,cn,wn)+rho_3pf(dr,ap,rp,cp,wp)
+             delt = (rho_3pf(dr,an,rn,cn,wn)- 
      1               rho_3pf(dr,ap,rp,cp,wp))/rho_t
           else if(n_den .EQ. 4) then
-             rho_t = rho_fy(dr,an,rn,cn,tn) + rho_fy(dr,ap,rp,cp,tz)
-             delt = (rho_fy(dr,an,rn,cn,tn) -
+             rho_t = rho_fy(dr,an,rn,cn,tn)+rho_fy(dr,ap,rp,cp,tz)
+             delt = (rho_fy(dr,an,rn,cn,tn)-
      1               rho_fy(dr,ap,rp,cp,tz))/rho_t
           end if              
                       
