@@ -11,6 +11,7 @@ AZpairs:True
 
 #---Special---#
 
+Initpar:True
 Mirrors:False 
 EOSpars:False
 
