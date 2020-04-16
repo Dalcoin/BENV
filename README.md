@@ -26,7 +26,7 @@ The program accepts EoS input of descrete values in the form:
 ### Dependencies 
 
 The Fortran source code was compiled with the Absoft 64-bit Pro Fortran 15.0.0 compiler and the compile commands found in the
-shell scrits reflect this.
+shell scripts reflect this.
 
 The IMSL(R) Fortran Numerical Math Library (FNML) is referenced in the Fortran source code and must be installed. 
 No affiliation is asserted nor implied. [ISML link](https://www.absoft.com/products/imsl-fortran-numerical-libraries/)
