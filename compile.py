@@ -1,102 +1,105 @@
-import sys 
+import sys
 import os 
 import subprocess
 
-from pmod import cmdline as cml 
-from pmod import ioparse as iop 
-from pmod import strlist as strl 
+import pmod.cmdline as cml
+import pmod.cmdutil as cmu
+import pmod.ioparse as iop
+import pmod.strlist as strl
 
 '''
-This script faciliates compiling binaries from source ('src') folder 
-and moving those binaries to the binaries folder ('bin'). 
-
+This script faciliates compiling binaries from source ('src') folder
+and moving those binaries to the binaries folder ('bin').
 
 Info:
 
     - Change 'linux' to 'windows' if running on windows
- 
+
 '''
 
-def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):   
+def compile_benv(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin", spc="    "):
 
-    spc = "    " 
-    
-    DIRPATH = ""    
-    SRCPATH = ""    
+    DIRPATH = ""
+    SRCPATH = ""
     BINPATH = ""
 
-    movexeb = False 
+    movexeb = False
     moveaux = False
     exefail = False
 
     print(" ")
-    print("The compile routine is now starting...runtime messesges will be printed below:\n")
+    print("The compile_benv routine is now starting...runtime messesges will be printed below:\n")
 
-    try: 
-        cmv = cml.path_parse(OS_INST)
+    # Set internal command line and command line utility
+    try:
+        cmv = cml.PathParse(OS_INST)
+        cmt = cmu.cmdUtil(cmv)
+        if(cmt.CML_INIT == False):
+            print(spc+"Error: 'cmdUtil' could not be initialized\n")
+            return False
         print(spc+"Success: Internal pathway routine has been successfully initialized")
-
     except:
         print(spc+"Error: an error occured while initializing internal pathway routine")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
 
-
-
+    # Set start pathway
     success, value = cmv.cmd("pwd")
     if(not success):
         print(spc+"Error: It looks like the BENV folder pathway could not be accessed")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
     else:
-        DIRPATH = value    
+        DIRPATH = value
 
-    # Checking for existing binaries
-    success, value = cmv.cmd("cd "+BIN_DIR) 
+    # Checking for existing binaries in Bin directory
+    success, value = cmv.cmd("cd "+BIN_DIR)
     if(not success):
         print(spc+"Error: It looks like the binary folder, '"+BIN_DIR+"', could not be accessed")
         print(spc+"       Check to see if the binary folder is present")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")   
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
 
+    # Get list of content of Bin directory
     success, value = cmv.cmd("ls")
     if(not success):
         print(spc+"Error: It looks like the binary folder, '"+BIN_DIR+"', content could not be accessed")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
     binarylist = value
-           
+
+    # Check for pre-existing binary files and remove any if the exist
     if("xeb_server" in binarylist):
         print(spc+"Warning: An already existing 'xeb_server' binary is present in the binary folder")
         print(spc+"         An attempt will be made to overwrite this file")
         success, value = cmv.cmd("rm xeb_server")
         if(not success):
-            print(spc+"Error: failure to delete existing 'xeb_server', the newly compiled version may end up in the program folder")
+            print(spc+"Error: failure to delete existing 'xeb_server', the newly compile_benvd version may end up in the program folder")
     if("aux" in binarylist):
         print(spc+"Warning: An already existing 'aux' binary is present in the binary folder")
         print(spc+"         An attempt will be made to overwrite this file")
         success, value = cmv.cmd("rm aux")
         if(not success):
-            print(spc+"Error: failure to delete existing 'aux', the newly compiled version may end up in the program folder")        
+            print(spc+"Error: failure to delete existing 'aux'")
+            print(spc+"The newly compile_benvd version may end up in the program folder\n")
 
-    success, value = cmv.cmd("cd ..") 
+    success, value = cmv.cmd("cd ..")
     if(not success):
         print(spc+"Error: It looks like the program folder, 'BENV', could not be accessed")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")    
-    
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
 
     # Moving into the source file 
-    cmv = cml.path_parse(OS_INST)
+    cmv = cml.PathParse(OS_INST)
     success, value = cmv.cmd("cd "+SRC_DIR)    
     if(not success):
         print(spc+"Error: It looks like the source folder, '"+SRC_DIR+"', could not be accessed")
         print(spc+"       Check to see if the source folder is present")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
-    
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
+
     success, value = cmv.cmd("pwd")
     if(not success):
         print(spc+"Error: It looks like the source folder, '"+SRC_DIR+"', pathway could not be accessed")
         print(spc+"       Check to see if the source folder is present")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
     else:
         SRCPATH = value
@@ -105,7 +108,7 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
     if(not success):
         print(spc+"Error: It looks like the source folder, '"+SRC_DIR+"', content could not be accessed")
         print(spc+"       Check to see if the source file properly formatted")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
     
     if(isinstance(value,(list,tuple))):
@@ -117,39 +120,43 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
                 print(spc+"Warning: A binary for 'nskin_v3.f' has been found and will be overwritten")
         else:
             print("Error: It looks like the source folder, '"+SRC_DIR+"', is empty")      
-            print("ExitError: fatal error; 'compile' could not be completed")
+            print("ExitError: fatal error; 'compile_benv' could not be completed")
             return False  
     else:
         print(spc+"Error: It looks like the source folder, '"+SRC_DIR+"', content could not be accessed")
         print(spc+"       Check to see if the source file properly formatted")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
     
     try:
         os.chdir(SRCPATH)
     except:
         print(spc+"Error: failure to set the shell pathway to the source folder")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False     
 
+    success = cmt.convert_file_endline("compile_benv.sh", foldName = SRC_DIR)
+    if(success == False):
+        print(spc+"Warning: 'run.sh' shell script not formatted, errors may result from improper formatting\n")
+
     try:
-        subprocess.call("chmod +x compile.sh",shell=True) 
+        subprocess.call("chmod +x compile_benv.sh",shell=True) 
     except:
-        print(spc+"Error: failure to set the 'compile' shell script to an executable")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"Error: failure to set the 'compile_benv' shell script to an executable")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False     
      
     try:
-        subprocess.call("./compile.sh",shell=True) 
+        subprocess.call("./compile_benv.sh",shell=True) 
     except:
-        print(spc+"Error: failure to run the 'compile' shell script")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"Error: failure to run the 'compile_benv' shell script")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False     
          
     success, value = cmv.cmd("ls")
     if(not success):
         print(spc+"Error: It looks like the source folder, '"+SRC_DIR+"', content could not be accessed after compiling")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False             
           
     if(isinstance(value,(list,tuple))):
@@ -158,19 +165,19 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
                 print(spc+"Success: A binary for 'eb_server_v3.f' has been found after compiling")
                 movexeb = True
             else:
-                print(spc+"Error: It looks like 'eb_server_v3.f' wasn't properly compiled")            
+                print(spc+"Error: It looks like 'eb_server_v3.f' wasn't properly compile_benvd")            
             if("aux" in value):
                 print(spc+"Success: A binary for 'nskin_v3.f' has been found after compiling")
                 moveaux = True
             else:
-                print(spc+"Error: It looks like 'nskin_v3.f' wasn't properly compiled")  
+                print(spc+"Error: It looks like 'nskin_v3.f' wasn't properly compile_benvd")  
         else:
             print("Error: It looks like the source folder, '"+SRC_DIR+"', is empty")      
-            print("ExitError: fatal error; 'compile' could not be completed")
+            print("ExitError: fatal error; 'compile_benv' could not be completed")
             return False 
     else:       
         print(spc+"Error: It looks like the source folder, '"+SRC_DIR+"', content could not be accessed after compiling")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False 
      
     if(movexeb):
@@ -187,7 +194,7 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
     success, value = cmv.cmd("cd ..") 
     if(not success):
         print(spc+"Error: It looks like the program folder, 'BENV', could not be reaccessed")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")        
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")        
 
     if(movexeb):
         success, value = cmv.cmd("mv xeb_server "+BIN_DIR)
@@ -204,12 +211,12 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
     if(not success):
         print(spc+"Error: It looks like the binary folder, '"+BIN_DIR+"', could not be accessed")
         print(spc+"       Check to see if the binary folder is present")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")     
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")     
 
     success, value = cmv.cmd("pwd")
     if(not success):
         print(spc+"Error: It looks like the binary folder, '"+BIN_DIR+"', pathway could not be accessed")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
     else:
         BINPATH = value     
@@ -218,20 +225,24 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
         os.chdir(BINPATH)
     except:
         print(spc+"Error: failure to set the shell pathway to the binary folder")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False     
 
+    success = cmt.convert_file_endline("run.sh", foldName=BIN_DIR)
+    if(success == False):
+        print(spc+"Warning: 'run.sh' shell script not formatted, errors may result from improper formatting\n")
+
     try:
-        subprocess.call("chmod +x run.sh",shell=True) 
+        subprocess.call("chmod +x run.sh",shell=True)
     except:
         print(spc+"Error: failure to set the 'run' shell script to an executable")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False   
 
     success, value = cmv.cmd("ls")
     if(not success):
         print(spc+"Error: It looks like the binary folder, '"+BIN_DIR+"', content could not be accessed")
-        print(spc+"ExitError: fatal error; 'compile' could not be completed")
+        print(spc+"ExitError: fatal error; 'compile_benv' could not be completed")
         return False
            
     if("xeb_server" in value):
@@ -247,7 +258,7 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
         exefail = True 
 
     if(exefail):
-        print(spc+"Error: compile failed, the 'exe.py' script will not work as intended")   
+        print(spc+"Error: compile_benv failed, the 'exe.py' script will not work as intended")   
      
     return True 
 
@@ -255,7 +266,7 @@ def compile(OS_INST = "linux", SRC_DIR = "src", BIN_DIR = "bin"):
 
 # Main program 
 
-success = compile()
+success = compile_benv()
 print(" ")
 
 if(success):
