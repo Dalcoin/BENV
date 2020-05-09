@@ -122,13 +122,13 @@ Nameing convensions:
 
    these work:
                       
-      example_e0.don & example_e1.don  
-      e0_1.don & e1_1.don  
+      example_e0.don  &  example_e1.don  
+      e0_1.don  &  e1_1.don  
                             
    these do not:
                          
-      e0_ex.don & e1_ex.don  
-      e0_new.don & e1_new_2.don  
+      e0_ex.don  &  e1_ex.don  
+      e0_new.don  &  e1_new_2.don  
                       
 
 
