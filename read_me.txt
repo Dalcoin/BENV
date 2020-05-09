@@ -1,12 +1,12 @@
 Prerequesites:
 
-1.) Must add the latest "pmod" package to the folder (delete the phelp.py if matplotlib is not installed)
-2.) Must add "benv.py" to the standard pmod package (found in the script_application folder)
-
+1.) Must add the latest "pmod" package to the folder (delete 'phelp.py' if matplotlib is not installed)
+2.) Must add "benv.py" to the standard pmod package (found in the 'script_application folder')
+3.) Must add "compile.py" to the standard package (found in 'program_scaffolding')
 
 Set-up: ccm
 
-1) Compile the binaries by running the compile script. Type "python compile.py" into the shell
+1) Compile the binaries by running the compile script. Type "python compile_BENV.py" into the shell
 
 2)  Add EoS to 'eos' folder. [(e.g.) 'e1_n2lo_450.don' & 'e0_n2lo_450.don'] 
     As long as the names are exactly the same but one is e0 and the other is e1 
@@ -18,10 +18,12 @@ Set-up: ccm
 
 4)  Set the initial parameters with the 'parameters.don' files (see documentation for all the details)
 
-5)  Run the program with 'python exe.py'
+5)  Run the program with 'python exe_BENV.py'
 
-6)  Find the results in 'results.srt' found in the 'data' folder
+6)  Find results in the 'dat' folder
 
+    a) Find the density functional parameters in 'Pars.srt' 
+    b) Find the nuclear values in 'Vals.srt'
 
 
 Examples: 
