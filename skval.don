@@ -12,7 +12,7 @@ AZpairs:True
 #---Special---#
 
 Initpar:True
-Mirrors:False 
+Mirrors:False
 EOSpars:False
 EOSgrup:False
 
