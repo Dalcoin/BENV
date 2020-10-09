@@ -1,4 +1,4 @@
-import pmod.compile as comp
+from lib.progLib.programCompile import progComp
 
 '''
 This script faciliates compiling binaries from the source ('src') folder
@@ -7,13 +7,14 @@ the scaffolding provided by 'compile.py'
 '''
 
 binList = ("xeb_server", "aux")
-srcScript = "compile_benv.sh"
+srcScript = "compile.sh"
 binScript = "run.sh"
 
-success = comp.compileFunc(binList, src_script=srcScript, bin_script=binScript)
+compInst = progComp(binList, dir_name='benv')
+successfulCompilation = compInst.compileFunc(safety_bool=False)
 
 print(" ")
-if(success):
+if(successfulCompilation):
     print("No fatal errors detected, see above for runtime messesges")
 else:
     print("Fatal error detected! See above for runtime error(s)")

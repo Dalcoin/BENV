@@ -1,0 +1,26 @@
+    NR        PR        NS        CHR       BE        SEC     EOS    (A  Z)
+
+  16  8
+    2.7211    2.7463   -0.0251    2.8770   -6.9196    0.0000  e10_n2lo_450_b.don
+    2.7347    2.7596   -0.0249    2.8897   -6.8315    0.0000  ex_n2lo_450.don
+  32  16
+    3.2147    3.2535   -0.0388    3.3646   -7.6147    0.0000  e10_n2lo_450_b.don
+    3.2335    3.2721   -0.0386    3.3826   -7.4975    0.0000  ex_n2lo_450.don
+  40  28
+    3.2217    4.2806   -1.0589    4.3620   -3.5090   11.4926  e10_n2lo_450_b.don
+    3.2291    4.3469   -1.1177    4.4254   -3.4169   11.1627  ex_n2lo_450.don
+  208  82
+    5.6634    5.4854    0.1780    5.5520   -7.0509   21.8660  e10_n2lo_450_b.don
+    5.6860    5.5054    0.1807    5.5717   -6.8843   21.7326  ex_n2lo_450.don
+
+
+*Key
+
+NR  :  Neutron Radius
+PR  :  Proton  Radius
+NS  :  Neutron Skin
+CHR :  Charge  Radius
+BE  :  Binding Energy
+SEC :  Sym. Eng. Coef
+A   :  Mass    number
+Z   :  Atomic  number

@@ -10,7 +10,7 @@ Set-up: ccm
 
 2)  Add EoS to 'eos' folder. [(e.g.) 'e1_n2lo_450.don' & 'e0_n2lo_450.don'] 
     As long as the names are exactly the same but one is e0 and the other is e1 
-    the program will find the files. Multiple files are allows as long as the names 
+    the program will find the files. Multiple files are allowed as long as the names 
     are unique. If 'ex' is in the file name both e1 and e0 are in the same file with 
     the same densities vs. e/a. 
 
@@ -50,7 +50,11 @@ pair examples:
 
 The order of the output data found in 'results.srt' is as follows:
 
-rp  cp  wp  rn  cn  wn  nr  pr  ns  cr  be  sc  A  Z    
+parameters.don
+rp  cp  wp  rn  cn  wn  
+
+characteristics
+nr  pr  ns  cr  be  sc  A  Z    
 
 
 rp : radial parameter (proton)

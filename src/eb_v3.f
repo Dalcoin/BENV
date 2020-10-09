@@ -648,15 +648,15 @@ c      a=0.87*dsqrt(2.d0/3.d0)
                    funct1=r1*ww1*fact1*rho_fy(r1,a1,b1,c1,tz)*
      1             fact2*fact3/r
                 end if
-             end if 
+             end if
              sum1=sum1+funct1
   105     continue
           dinte=2.d0*sum1/(a*dsqrt(pi))
           funct2=4.d0*pi*r**4.d0*ww*dinte
           sum2=sum2+funct2
- 106   continue 
+ 106   continue
        chr=dsqrt(sum2/ttz)
-       end 
+       end
 
 
 c-------------------------------------------------

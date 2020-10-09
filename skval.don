@@ -1,26 +1,27 @@
-#---Start---#
+#----Start----#
 
-#------------#
-#--Preamble--#-------#
-#------------#
+
+#----Pars----#
+
+6 2 0 9 9 1 1 0 220 0.16 65
+64 64 64
+0.0 20.0
+16.0 8.0
 
 #----Loop----#
 
 INCloop:False
 AZpairs:True
 
-#---Special---#
+#----Special----#
 
 Initpar:True
 Mirrors:False
 EOSpars:False
 EOSgrup:False
+Resetit:False
 
-#-------------#
-#--Formating--#-------#
-#-------------#
-
-#----Loop----#
+#----Nuclei----#
 
 16,8
 40,20
@@ -28,25 +29,4 @@ EOSgrup:False
 56,28
 208,82
 
-#----Pars----#
-
-
-
-#---Special---#
-
-
-
-#---End---#
-
-
-
-
-
-
-
-
-
-
-
-
-
+#----End----#

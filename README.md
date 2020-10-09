@@ -132,6 +132,17 @@ Nameing convensions:
                       
 
 
+### Parline
+
+    n, n_den, n_read, n_0, n_1, mic, isnm, isym_emp, k0, rho0, fff
+
+e.g.
+
+    6  2      0       9    9    1    1     0         220 0.16  65
+
+    n  nden nread n0 n1 mic isnm iemp k0  rho0 fff
+    11 2    0     19 19 0   1    0    220 0.16 65
+
 ### SKVAL loop
 
 The file 'skval.don' is intended to be formatted for the 'benv.skval_loop' function.
@@ -177,4 +188,8 @@ formatted as 'A,Z'
    >208,82   
  
  
+## Testing
 
+Importing BENV from repl:
+
+from lib import benv
