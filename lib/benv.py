@@ -9,6 +9,7 @@ from progLib.programStructure import progStruct
 from progLib.pmod import ioparse as iop
 from progLib.pmod import strlist as strl
 from progLib.pmod import mathops as mops
+from progLib.pmod import pinax   as px
 
 
 class benv(progStruct):
@@ -17,10 +18,13 @@ class benv(progStruct):
                  eos_fold_name='eos',
                  par_file_name='par.don',
                  val_file_name='nucleus.don',
+                 dis_file_name='denopts.don',
                  vrb_file_name='opt_par.etr',
                  skn_file_name='skin.srt',
+                 rho_file_name='rhos.don',
                  xeb_bin_name='xeb_server',
                  aux_bin_name='aux',
+                 zeb_bin_name='zeb',
                  osFormat='linux',
                  newPath=None,
                  rename=True,
@@ -58,7 +62,7 @@ class benv(progStruct):
         self.EOSFOLD = eos_fold_name
         self.EOSPATH = ''
 
-        # Bin Files #
+        # Files in BIN #
 
         # Bin Files
         self.AUXNAME = aux_bin_name
@@ -67,12 +71,19 @@ class benv(progStruct):
         self.XEBNAME = xeb_bin_name
         self.XEBPATH = ''
 
+        self.ZEBNAME = zeb_bin_name
+        self.ZEBPATH = ''
+
         # Input Files
         self.PARFILE = par_file_name
         self.PARPATH = ''
 
         self.VALFILE = val_file_name
         self.VALPATH = ''
+
+        self.DISFILE = dis_file_name
+        self.DISPATH = ''
+
 
         # EOS-BIN FILE
         self.EXFILE = 'ex_nxlo.don'
@@ -86,11 +97,16 @@ class benv(progStruct):
         self.SKNFILE = skn_file_name
         self.SKNPATH = ''
 
+        self.RHOFILE = rho_file_name
+        self.RHOPATH = ''
+
         # DAT Files
         self.OUTPARS = 'par_results.don'
         self.OUTVALS = 'skval_results.don'
         self.OUTSINGLEPARS = 'os_par_results.don'
         self.OUTSINGLEVALS = 'os_skval_results.don'
+        self.OUTDENS = 'par_dens.don'
+        self.OUTSINGLEDENS = 'os_par_dens.don'
 
         ###############
         # REGEX codes #
@@ -117,6 +133,7 @@ class benv(progStruct):
         self.EOSPARS = re.compile(r"\s*EOSpars\s*:\s*(TRUE|True|true|FALSE|False|false)")
         self.EOSGRUP = re.compile(r"\s*EOSgrup\s*:\s*(TRUE|True|true|FALSE|False|false)")
         self.RESETIT = re.compile(r"\s*Resetit\s*:\s*(TRUE|True|true|FALSE|False|false)")
+        self.DENSITY = re.compile(r"\s*Density\s*:\s*(TRUE|True|true|FALSE|False|false)")
 
         self.SKVAL_HEADER = re.compile(r"#\-+([^\-]+)\-+#")
         self.SKVAL_NUCLEI = re.compile(r"\s*(\d+)\s*,\s*(\d+)")
@@ -137,6 +154,7 @@ class benv(progStruct):
 
         # initial data 
         self.initial_parline = ''
+        self.initial_parlist = []
         self.initial_vallist = []
         self.initial_nucs = []
         self.initial_a = 0
@@ -149,13 +167,14 @@ class benv(progStruct):
                            'Mirrors':False,
                            'EOSpars':False,
                            'EOSgrup':False,
-                           'Resetit':False}
+                           'Resetit':False,
+                           'Density':False}
 
         self.SKVAL_SET = False
 
         self.skval = ()
 
-        self.BENV_SET_BINARIES = self.init_binary([self.PARFILE, self.VALFILE, self.AUXNAME, self.XEBNAME])
+        self.BENV_SET_BINARIES = self.init_binary([self.PARFILE, self.VALFILE, self.AUXNAME, self.XEBNAME, self.ZEBNAME])
         self.BENV_SET_PATHWAYS = self.benv_structure(**kwargs)
 
 
@@ -184,6 +203,11 @@ class benv(progStruct):
         else:
             success = self.__err_print__("not found in '"+self.BINFOLD+"'", varID=self.VALFILE, **kwargs)
 
+        if(self.DISFILE in self.BIN_DICT):
+            self.DISPATH = self.BIN_DICT[self.DISFILE]
+        else:
+            success = self.__err_print__("not found in '"+self.BINFOLD+"'", varID=self.DISFILE, **kwargs)
+
         if(self.AUXNAME in self.BIN_DICT):
             self.AUXPATH = self.BIN_DICT[self.AUXNAME]
         else:
@@ -193,6 +217,11 @@ class benv(progStruct):
             self.XEBPATH = self.BIN_DICT[self.XEBNAME]
         else:
             success = self.__err_print__("not found in '"+self.BINFOLD+"'", varID=self.XEBNAME, **kwargs)
+
+        if(self.ZEBNAME in self.BIN_DICT):
+            self.ZEBPATH = self.BIN_DICT[self.ZEBNAME]
+        else:
+            success = self.__err_print__("not found in '"+self.BINFOLD+"'", varID=self.ZEBNAME, **kwargs)
 
         return success
 
@@ -212,25 +241,27 @@ class benv(progStruct):
         if(self.__not_strarr_print__(lines, **kwargs)):
             return False
 
-        # variables
-
+        # Add variable names here
         reg_dict = {'INCloop':self.INCLOOP,
                     'AZpairs':self.AZPAIRS,
                     'Initpar':self.INITPAR,
                     'Mirrors':self.MIRRORS,
                     'EOSpars':self.EOSPARS,
                     'EOSgrup':self.EOSGRUP,
-                    'Resetit':self.RESETIT}
+                    'Resetit':self.RESETIT,
+                    'Density':self.DENSITY}
 
         reg_list = []
 
+        # Add variable names here
         test_list = ['INCloop',
                      'AZpairs',
                      'Initpar',
                      'Mirrors',
                      'EOSpars',
                      'EOSgrup',
-                     'Resetit']
+                     'Resetit',
+                     'Density']
 
         line_ids = ['pars', 'loop', 'special', 'nuclei']
 
@@ -321,6 +352,7 @@ class benv(progStruct):
         if(len(parlist) >= 4):
             self.initial_parline = strl.array_to_str(parlist[0], spc='  ', **kwargs)
             self.initial_vallist = map(lambda lam: str(strl.array_to_str(lam, spc='  ', **kwargs))+"\n", parlist[1:])
+            self.initial_parlist = self.parse_parline(self.initial_parline)
 
             try:
                 self.initial_a = int(float(parlist[3][0]))
@@ -736,6 +768,48 @@ class benv(progStruct):
         return success
 
 
+    def create_rhopar(self, denfunc, A, Z, radial_limit=12.0, radial_points=30):
+        kwargs = self.__update_funcNameHeader__("create_rhopar", **kwargs)
+
+        if(__not_num_print__(denfunc, style='int', varID='denfunc', **kwargs)):
+            return False
+        else:
+            denfunc = str(denfunc)
+
+        if(__not_num_print__(A, varID='A', **kwargs)):
+            return False
+        else:
+            A = str(float(A))
+
+        if(__not_num_print__(Z, varID='Z', **kwargs)):
+            return False
+        else:
+            Z = str(float(Z))
+
+        if(radial_limit != None):
+            if(__not_num_print__(radial_limit, varID='radial_limit', **kwargs)):
+                return False
+            else:
+                radial_limit = str(float(radial_limit))
+        else:
+            radial_limit = 12.0
+
+        if(radial_points != None):
+            if(__not_num_print__(radial_points, varID='radial_points', **kwargs)):
+                return False
+            else:
+                radial_points = float(radial_points)
+        else:
+            radial_points = 30
+
+        rholine = denfunc+"  "+radial_limit+"  "+radial_points+"  "+A+"  "+Z
+        return rholine
+
+    def write_rhopar(self, rholine, **kwargs):
+        kwargs = self.__update_funcNameHeader__("write_rhopar", **kwargs)
+        success = iop.flat_file_write(self.DISPATH, [rholine], **kwargs)
+        return success
+
     ################
     # Output Data  #
     ################
@@ -757,20 +831,27 @@ class benv(progStruct):
 
         par_Strings = []
         val_Strings = []
+        den_Strings = []
+
+        rhops = []
+        rhons = []
+        rhots = []
+        rholab= []
+        rhoidx= []
 
         ingroup_pars = {}
         ingroup_vals = {}
 
         if(add_descript):
             if(eosgrup):
-                val_Strings.append("    NR        PR        NS        CHR       BE        SEC     A   Z    (EOS)"+nl)
+                val_Strings.append("    NR        PR        NS        CHR       BE        SEC       RD      A   Z    (EOS)"+nl)
             else:
-                val_Strings.append("    NR        PR        NS        CHR       BE        SEC     EOS    (A  Z)"+nl)
+                val_Strings.append("    NR        PR        NS        CHR       BE        SEC       RD      EOS    (A  Z)"+nl)
             val_Strings.append(nl)
 
         eos_names = sorted(list(benvdata))
 
-        for eos in eos_names:
+        for i,eos in enumerate(eos_names):
             if(eosgrup):
                 if(eospars):
                     par_Strings.append(str(eos)+nl)
@@ -781,7 +862,7 @@ class benv(progStruct):
             skval = benvdata[eos]
             az_names = sorted(list(skval))
             for az in az_names:
-                pars, vals = skval[az]
+                pars, vals, dentable = skval[az]
                 if(eosgrup):
                     nucleus = "  "+strl.array_to_str(az ,spc = '  ')+nl
                     if(eospars):
@@ -801,6 +882,20 @@ class benv(progStruct):
                         if(ingroup_vals.get(az) == None):
                             ingroup_vals[az] = []
                         ingroup_vals[az].append(vals+"  "+eos+nl)
+                if(self.skval_dict['Density']):
+                    if(len(dentable) > 0):
+                        if(len(rhops) == 0):
+                            rhops = [dentable[0]]+[dentable[1]]
+                            rhons = [dentable[0]]+[dentable[2]]
+                            rhots = [dentable[0]]+[dentable[3]]
+                            rholab= ["dens", "r1"]
+                            rhoidx= ["r1: "+str(eos)+" - "+str(az)]
+                        else:
+                            rhops.append(dentable[1])
+                            rhons.append(dentable[2])
+                            rhots.append(dentable[3])
+                            rholab.append("r"+str(i))
+                            rhoidx.append("r"+str(i)+": "+str(eos)+" - "+str(az))
         if(eosgrup):
             if(eospars):
                 par_Strings.append(nl)
@@ -831,13 +926,36 @@ class benv(progStruct):
             val_Strings.append("CHR :  Charge  Radius"+nl)
             val_Strings.append("BE  :  Binding Energy"+nl)
             val_Strings.append("SEC :  Sym. Eng. Coef"+nl)
+            val_Strings.append("RD  :  Ref. Density  "+nl)
             val_Strings.append("A   :  Mass    number"+nl)
             val_Strings.append("Z   :  Atomic  number"+nl)
 
+        if(self.skval_dict['Density']):
+            den_Strings.append(str(strl.array_to_str(rholab, **kwargs))+"\n")
+            den_Strings.append("\n")
+            den_Strings.append("Total Density\n")
+            for string in px.matrix_to_str_array(px.table_trans(rhots), endline=True, **kwargs):
+                den_Strings.append(str(string))
+            den_Strings.append("\n")
+            den_Strings.append("Neutron Density\n")
+            for string in px.matrix_to_str_array(px.table_trans(rhons), endline=True, **kwargs):
+                den_Strings.append(str(string))
+            den_Strings.append("\n")
+            den_Strings.append("Proton Density\n")
+            for string in px.matrix_to_str_array(px.table_trans(rhops), endline=True, **kwargs):
+                den_Strings.append(str(string))
+            den_Strings.append("\n")
+            den_Strings.append("\n")
+            den_Strings.append("Index\n")
+            for line in rhoidx:
+                den_Strings.append(line)
+            den_Strings.append("\n")
+            den_Strings.append("\n")
+
         if(eospars):
-            output = (par_Strings, val_Strings)
+            output = (par_Strings, val_Strings, den_Strings)
         else:
-            output = val_Strings
+            output = val_Strings, den_Strings
         return output
 
 
@@ -1187,13 +1305,24 @@ class benv(progStruct):
             return False
         else:
             self.initial_parline = new_parline
+            self.initial_parlist = self.parse_parline(self.initial_parline)
 
         print(self.space+"new parline = '"+new_parline+"' \n")
 
         return new_parline
 
 
-    def single_run(self, parline=None, vallist=None, run_cmd='run.sh', clean_Run=True, **kwargs):
+    def single_run(self, parline=None,
+                         vallist=None,
+                         run_cmd='run.sh',
+                         clean_Run=True,
+                         density=False,
+                         dentype=None,
+                         denA=None,
+                         denZ=None,
+                         denlim=None,
+                         denpts=None,
+                         **kwargs):
 
         kwargs = self.__update_funcNameHeader__("single_run", **kwargs)
 
@@ -1208,6 +1337,9 @@ class benv(progStruct):
                 msg = ["failure to create and write vallist", "vallist : "+str(vallist)]
                 return self.__err_print__(msg, **kwargs)
 
+        if(dentype != None and denA != None and denZ != None):
+            rhopar = self.create_rhopar(dentype, denA, denZ, denlim, denpts)
+
         self.set_osdir(self.BINPATH, **kwargs)
         self.run_commands(run_cmd, **kwargs)
         self.set_osdir(**kwargs)
@@ -1217,14 +1349,19 @@ class benv(progStruct):
         optpars = values_dict.get(self.VRBFILE)
         sknvals = values_dict.get(self.SKNFILE)
 
+        if(density):
+            dentable = iop.flat_file_intable(self.RHOPATH, header=True, **kwargs)
+        else:
+            dentable = []
+
         if(clean_Run):
             self.clearDir(['bin'], select=[self.VRBFILE, self.SKNFILE], **kwargs)
 
         self.cycle+=1
-        return (optpars[0], sknvals[0])
+        return (optpars[0], sknvals[0], dentable)
 
 
-    def skval_loop(self, skval, mirrors=False, initpar=False, **kwargs):
+    def skval_loop(self, skval, mirrors=False, initpar=False, density=False, **kwargs):
         '''
         Notes:
 
@@ -1253,10 +1390,15 @@ class benv(progStruct):
         if(initpar):
             new_vallist = self.create_vallist(self.initial_a, self.initial_z, **kwargs)
             pass_vallist = self.write_vallist(new_vallist, **kwargs)
-            initrun = self.single_run(parline=None, vallist=None, run_cmd='run.sh', clean_Run=True, **kwargs)
+            initrun = self.single_run(density=density, denA=self.initial_a, denZ=self.initial_z, **kwargs)
             if(initrun == False):
                 self.__err_print__("run failed", varID='initpar', **kwargs)
             output[(self.initial_a, self.initial_z)] = initrun
+
+        if(len(self.initial_parlist)>0):
+            edf = self.initial_parlist[1]
+        else:
+            edf = 2
 
         # 'loop_type' determines if BENV values are computed by a skval loop or individual nuclei
         if(loop_type == 'loop'):
@@ -1283,7 +1425,7 @@ class benv(progStruct):
                             msg = ["failure to create and write vallist", "vallist : "+str(new_vallist)]
                             return self.__err_print__(msg, **kwargs)
 
-                        results = self.single_run()
+                        results = self.single_run(density=density, dentype=edf, denA=ax, denZ=zx, **kwargs)
                         if(results == False):
                             msg = ["failure to create complete run", "A,Z : "+str(ax)+","+str(zx)]
                             return self.__err_print__(msg, **kwargs)
@@ -1298,7 +1440,7 @@ class benv(progStruct):
                                 msg = ["failure to create and write vallist", "vallist : "+str(new_vallist)]
                                 return self.__err_print__(msg, **kwargs)
 
-                            results = self.single_run()
+                            results = self.single_run(density=density, dentype=edf, dentype=edf, denA=ax, denZ=zx, **kwargs)
                             if(results == False):
                                 msg = ["failure to create complete run", "A,Z : "+str(ax)+","+str(zx)]
                                 return self.__err_print__(msg, **kwargs)
@@ -1318,7 +1460,7 @@ class benv(progStruct):
                     msg = ["failure to create and write vallist", "vallist : "+str(new_vallist), ""]
                     return self.__err_print__(msg, **kwargs)
 
-                results = self.single_run()
+                results = self.single_run(density=density, dentype=edf, denA=ax, denZ=zx, **kwargs)
                 if(results == False):
                     msg = ["failure to create complete run", "A,Z : "+str(ax)+","+str(zx)]
                     return self.__err_print__(msg, **kwargs)
@@ -1333,7 +1475,7 @@ class benv(progStruct):
                         msg = ["failure to create and write vallist", "vallist : "+str(new_vallist)]
                         return self.__err_print__(msg, **kwargs)
 
-                    results = self.single_run()
+                    results = self.single_run(density=density, dentype=edf, denA=ax, denZ=zx, **kwargs)
                     if(results == False):
                         msg = ["failure to create complete run", "A,Z : "+str(ax)+","+str(zx)]
                         return self.__err_print__(msg, **kwargs)
@@ -1347,6 +1489,7 @@ class benv(progStruct):
                        parline=None,
                        initpar=False,
                        mirrors=False,
+                       density=False,
                        reset=True,
                        osaz = (),
                        **kwargs):
@@ -1404,7 +1547,7 @@ class benv(progStruct):
 
             if(skval_run):
                 # Initiate skval loop for given 'parline', 'data' and 'type' and 'parline'
-                benvals = self.skval_loop(skval, mirrors, initpar, **kwargs)
+                benvals = self.skval_loop(skval, mirrors, initpar, density, **kwargs)
                 if(benvals == False):
                     ith_entry = strl.print_ordinal(str(i+1), **kwargs)
                     msg = "The "+ith_entry+" failed the 'skval_loop' routine, cycling to the next eos..."
@@ -1416,7 +1559,7 @@ class benv(progStruct):
                 newaz = (ax, zx)
                 new_vallist = self.create_vallist(ax, zx, **kwargs)
                 pass_vallist = self.write_vallist(new_vallist, **kwargs)
-                benvals = {newaz : self.single_run(**kwargs)}
+                benvals = {newaz : self.single_run(density=density, dentype=edf, denA=ax, denZ=zx, **kwargs)}
                 if(benvals[newaz] == False):
                     ith_entry = strl.print_ordinal(str(i+1), **kwargs)
                     msg = "The "+ith_entry+" failed the 'skval_loop' routine, cycling to the next eos..."
@@ -1428,7 +1571,7 @@ class benv(progStruct):
                         newaz = (ax, zx)
                         new_vallist = self.create_vallist(ax, zx, **kwargs)
                         pass_vallist = self.write_vallist(new_vallist, **kwargs)
-                        benvals[newaz] = self.single_run(**kwargs)
+                        benvals[newaz] = self.single_run(density=density, dentype=edf, denA=ax, denZ=zx, **kwargs)
 
             benvals_group[eosid] = benvals
 
@@ -1459,6 +1602,7 @@ class benv(progStruct):
                                     parline=self.initial_parline,
                                     initpar=self.skval_dict['Initpar'],
                                     mirrors=self.skval_dict['Mirrors'],
+                                    density=self.skval_dict['Density'],
                                     reset  =self.skval_dict['Resetit'],
                                     **kwargs)
 
@@ -1467,11 +1611,15 @@ class benv(progStruct):
                                                       self.skval_dict['EOSgrup'],
                                                       **kwargs)
         if(self.skval_dict['EOSpars']):
-            par_Strings, val_Strings = formatted_benval_data
+            par_Strings, val_Strings, den_Strings = formatted_benval_data
             self.write_to_dat(self.OUTPARS, par_Strings, **kwargs)
             self.write_to_dat(self.OUTVALS, val_Strings, **kwargs)
         else:
-            self.write_to_dat(self.OUTVALS, formatted_benval_data, **kwargs)
+            val_Strings, den_Strings = formatted_benval_data
+            self.write_to_dat(self.OUTVALS, val_Strings, **kwargs)
+
+        if(self.skval_dict['Density']):
+            self.write_to_dat(self.OUTDENS, den_Strings, **kwargs)
 
         if(return_data):
             return formatted_benval_data
@@ -1492,6 +1640,7 @@ class benv(progStruct):
 
         val_Strings = []
         par_Strings = []
+        den_Strings = []
 
         while(proceed):
             aval = self.num_from_console("Input the Atomic Mass Number : ", 'int', **kwargs)
@@ -1520,11 +1669,14 @@ class benv(progStruct):
                                                           **kwargs)
 
             if(self.skval_dict['EOSpars']):
-                par_vals, val_vals = formatted_benval_data
+                par_vals, val_vals, den_vals = formatted_benval_data
                 val_Strings += val_vals
                 par_Strings += par_vals
+                den_Strings += den_vals
             else:
-                val_Strings += formatted_benval_data
+                val_vals, den_vals = formatted_benval_data
+                val_Strings += val_vals
+                den_Strings += den_vals
 
             if(self.skval_dict['EOSpars']):
                 print(" ")
@@ -1537,10 +1689,9 @@ class benv(progStruct):
                     print(self.doubleSpace+entry)
                 print(" ")
             else:
-                val_Strings = formatted_benval_data
                 print(" ")
                 print(self.space+" Nucleus data Printed below :\n")
-                for entry in val_Strings:
+                for entry in val_vals:
                     print(self.doubleSpace+entry)
                 print(" ")
 
@@ -1553,6 +1704,8 @@ class benv(progStruct):
             self.write_to_dat(self.OUTSINGLEVALS, [string+'\n' for string in val_Strings], **kwargs)
         else:
             self.write_to_dat(self.OUTSINGLEVALS, [string+'\n' for string in val_Strings], **kwargs)
+        if(self.skval_dict['Density']):
+            self.write_to_dat(self.OUTSINGLEDENS, den_Strings, **kwargs)
         return True
 
 

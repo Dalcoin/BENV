@@ -3,14 +3,14 @@ from lib.progLib.programCompile import progComp
 '''
 This script faciliates compiling binaries from the source ('src') folder
 and moving those binaries to the binary folder ('bin'). This script uses
-the scaffolding provided by 'compile.py'
+the scaffolding provided by 'programCompile' in the 'progLib' library.
 '''
 
-binList = ("xeb_server", "aux")
-srcScript = "compile.sh"
-binScript = "run.sh"
+srcBin = ("xeb_server", "aux", "zed")
+srcRun = "compile.sh"
+binRun = "run.sh"
 
-compInst = progComp(binList, dir_name='benv')
+compInst = progComp(srcBin, dir_name='benv')
 successfulCompilation = compInst.compileFunc(safety_bool=False)
 
 print(" ")

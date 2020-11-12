@@ -1,5 +1,4 @@
-c   BENV fortran Routines and Functions: Version 5.0 
-c   Modified by: Dalcoin
+c   BENV fortran Routines and Functions: Version 5.0
 
 c---------------------------------------------------------------------------------------------------
 c                                      Initalization Routine                                       |
@@ -725,8 +724,10 @@ c------------------------------------------------------
        common/setup/n1, n2, n3, x1, x2
        common/factor/pi,pi2
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-       common/esymc/esym_coef
+       common/esymc/esym_coef,refden
        common/readpar/n_read
+
+       dimension :: temprho(90),tempesym(90),breakt(90),cscoeft(4,90)
 
        nrep      =  90
        down_lim  =  0.d0
@@ -761,15 +762,19 @@ c------------------------------------------------------
              delt = (rho_fy(dr,an,rn,cn,tn)-
      1               rho_fy(dr,ap,rp,cp,tz))/rho_t
           end if              
-                      
+
+          temprho(i) = rho_t
           e0_eval = e0_val(rho_t)
           e1_eval = e1_val(rho_t)
               
           if(isym_emp.eq.0) then
-             pt=(delt*delt)*(e1_eval-e0_eval) 
+             esymval = (e1_eval-e0_eval)
+             pt=(delt*delt)*esymval
           else 
-             pt=(delt*delt)*esym_ph(rho_t,0.72d0)    
-          end if     
+             esymval = esym_ph(rho_t,0.72d0)
+             pt=(delt*delt)*esymval
+          end if
+          tempesym(i) = esymval
           
           eval = rho_t*pt*dr*dr*ww
           sum = sum + eval
@@ -778,6 +783,13 @@ c------------------------------------------------------
 5543   continue 
 
        esym_coef = sum*coef_int*4.d0*pi
+       if(esym_coef .gt. 0.d0) then
+           call dcsakm(nrep,tempesym,temprho,breakt,cscoeft)
+           refden = dcsval(esym_coef,nrep-1,breakt,cscoeft)
+       else
+           refden = 0.1d0
+       end if
+
        return 
        end
 

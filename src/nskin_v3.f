@@ -18,7 +18,7 @@ c      Modified by: Randy Millerson
        common/setup/n1, n2, n3, x1, x2
        common/factor/pi,pi2
        common/parz/n_den,mic,isnm,isym_emp,k0,rho0,fff
-       common/esymc/esym_coef
+       common/esymc/esym_coef,refden
        common/rhoeval/rhoneu,rhopro,rhotot,alphapar
          
           
@@ -55,10 +55,10 @@ c      calculate symmetry energy coefficient
        call sym_eng_coef(ap,rp,cp,wp,an,rn,cn,wn)
        en = energy(rp, cp, wp, rn, cn, wn)
 
-       write(999,1344) fint2,fint1,fint2-fint1,chr,en,esym_coef
-c       write(*,1344) fint2,fint1,fint2-fint1,chr,en,esym_coef
+       write(999,1344) fint2,fint1,fint2-fint1,chr,en,esym_coef,refden
+c       write(*,1344) fint2,fint1,fint2-fint1,chr,en,esym_coef,refden
 
- 1344  FORMAT(F10.4,F10.4,F10.4,F10.4,F10.4,F10.4)
+ 1344  FORMAT(F10.4,F10.4,F10.4,F10.4,F10.4,F10.4,F10.4)
  4000  format(1x,'neutron skin=',f10.4)
  5555  format(1x,'neutron radius',f10.4)
  2000  format(1x,'neutron density function')
