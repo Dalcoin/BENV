@@ -23,9 +23,10 @@ if(programMode):
     benvInst.get_skval()
     benvInst.set_benv_menu()
     benvInst.program_loop(benvInst.benv_program_loop, program_name='BENV')
+    benvInst.exit_function("exiting program...", binlogfiles='CONSOLE.txt')
 elif(benvMode):
     benvInst.get_skval()
     benvInst.benv_run(benvInst.skval)
-    benvInst.exit_function()
+    benvInst.exit_function("exiting program...", binlogfiles='CONSOLE.txt')
 else:
-    benvInst.exit_function()
+    benvInst.exit_function("exiting program...")

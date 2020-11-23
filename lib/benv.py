@@ -1730,6 +1730,7 @@ class benv(progStruct):
                       "Input 'single' to perform a single run",
                       "Input 'pars' to initialize a new set of parameters",
                       "Input 'menu' to view the menu again",
+                      "Input 'cleardat' to clear the 'dat' folder",
                       "Input 'exit' to quit the program"]
 
         return self.set_option_menu(menu_lines, **kwargs)
@@ -1758,7 +1759,7 @@ class benv(progStruct):
 
         kwargs = self.__update_funcNameHeader__("benv_program_loop", **kwargs)
 
-        action_list = ('benv', 'single', 'pars', 'menu', 'help', 'exit', 'quit')
+        action_list = ('benv', 'single', 'pars', 'menu', 'cleardat', 'help', 'exit', 'quit')
 
         if(input not in action_list):
             print(self.space+"Input not recognized : '"+str(input))+"'"
@@ -1778,6 +1779,8 @@ class benv(progStruct):
             self.os_run(self.skval, **kwargs)
         elif(input == 'pars'):
             self.parline_generator(**kwargs)
+        elif(input == 'cleardat'):
+            self.clear_data_folder(**kwargs)
         else:
             return True
         return True
