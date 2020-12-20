@@ -1738,7 +1738,7 @@ class benv(progStruct):
 
     def get_skval(self, **kwargs):
 
-        kwargs = self.__update_funcNameHeader__("set_benv_menu", **kwargs)
+        kwargs = self.__update_funcNameHeader__("get_skval", **kwargs)
 
         # Get SKVAL from 'skval.don' file
         skval_lines = self.get_options(**kwargs)
